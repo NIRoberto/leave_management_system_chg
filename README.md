@@ -2,10 +2,10 @@
 
 A modern, full-featured Leave Management System built with **Java Spring Boot** and **React**. Designed for organizations to manage employee leaves efficiently through role-based workflows, real-time notifications, and a user-friendly interface.
 
-![License](https://img.shields.io/github/license/yourusername/leave-management-system)
-![Build Status](https://img.shields.io/github/workflow/status/yourusername/leave-management-system/Java%20CI)
-![Issues](https://img.shields.io/github/issues/yourusername/leave-management-system)
-![Pull Requests](https://img.shields.io/github/issues-pr/yourusername/leave-management-system)
+![License](https://img.shields.io/github/license/niroberto/leave-management-system)
+![Build Status](https://img.shields.io/github/workflow/status/niroberto/leave-management-system/Java%20CI)
+![Issues](https://img.shields.io/github/issues/niroberto/leave-management-system)
+![Pull Requests](https://img.shields.io/github/issues-pr/niroberto/leave-management-system)
 
 
 
