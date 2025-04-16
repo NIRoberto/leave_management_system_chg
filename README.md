@@ -1,46 +1,48 @@
-# Getting Started with Create React App
+# 🌿 Leave Management System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, full-featured Leave Management System built with **Java Spring Boot** and **React**. Designed for organizations to manage employee leaves efficiently through role-based workflows, real-time notifications, and a user-friendly interface.
 
-## Available Scripts
+![License](https://img.shields.io/github/license/yourusername/leave-management-system)
+![Build Status](https://img.shields.io/github/workflow/status/yourusername/leave-management-system/Java%20CI)
+![Issues](https://img.shields.io/github/issues/yourusername/leave-management-system)
+![Pull Requests](https://img.shields.io/github/issues-pr/yourusername/leave-management-system)
 
-In the project directory, you can run:
 
-### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+##  Screenshots
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+![Dashboard](./screenshots/dashboard.png)
+![Leave Request](./screenshots/leave-request.png)
+![Manager View](./screenshots/manager-view.png)
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
+##  Features
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Role-based access: Admin, HR, Manager, Employee
+- Leave types: Annual, Sick, Maternity, Compassionate, Custom
+- Integrated calendar view with filters
+- Multi-level approval workflows
+- Real-time leave balance tracking
+- Attach supporting documents (e.g., medical)
+- Notifications (email/in-app)
+- Leave accrual and carry-forward logic
+- Dashboard with analytics and reports
+- RESTful API with secure JWT authentication
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
+##  Tech Stack
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+| Layer     | Technology                          |
+|-----------|-------------------------------------|
+| Frontend  | React, Tailwind CSS and Antd   |
+| Backend   | Java Spring Boot (REST API)         |
+| Database  | PostgreSQL          
+| Auth      | Spring Security + JWT               |
+| DevOps    | Docker, GitHub Actions              |
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## 📁 Project Structure
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
