@@ -1,6 +1,6 @@
 import { ReactElement } from "react";
-import AuthLayout from "../Components/Shared/Layout/AuthLayout";
-import DashboardLayout from "../Components/Shared/Layout/DashboardLayout";
+import AuthLayout from "../Components/Shared/layout/AuthLayout";
+import DashboardLayout from "../Components/Shared/layout/DashboardLayout";
 
 const Contact = () => <div>Contact</div>;
 
