@@ -8,19 +8,18 @@ A modern leave management system built with a full-stack architecture to streaml
 ##  Tech Stack
 
 **Frontend:**
-- ⚛️ React (with Vite & TypeScript)
+- ⚛️ React (TypeScript)
 -  Tailwind CSS
 -  TanStack Query (React Query)
 -  Microsoft OAuth (via MSAL)
--  Context Api (for optional global state)
+-  Context API (for optional global state)
 
 **Backend:**
+
 -  Spring Boot (Java)
 -  MySQL Database
 -  Spring Security (Microsoft OAuth2)
 -  Swagger / OpenAPI
-
-
 
 ##  Authentication
 
