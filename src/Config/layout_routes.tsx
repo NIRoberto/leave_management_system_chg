@@ -11,8 +11,8 @@ import UsersManagement from "../Components/Users/UsersManagement";
 import LeaveTypesManagement from "../Components/LeaveManagement/LeaveTypesMagement";
 import LeaveBalanceManagement from "../Components/LeaveManagement/LeaveBalance";
 import Login from "../Components/Auth/Login";
-import AuthLayout from "../Components/Shared/layout/AuthLayout";
-import DashboardLayout from "../Components/Shared/layout/DashboardLayout";
+import AuthLayout from "../Components/Shared/layout/AuthLayoutComp";
+import DashboardLayout from "../Components/Shared/layout/DashboardLayoutComp";
 
 const Contact = () => <div>Contact</div>;
 const MarketingHome = () => (
