@@ -1,32 +1,33 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "./dashboard/Sidebar";
 import Header from "./dashboard/Header";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { Role } from "./types/role";
 
 const DashboardLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const userRole: Role = "admin"; // Replace with actual user role from auth context
+  const userRole: Role = "admin";
 
-  // Update the sidebar collapsed state based on screen width
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768); // Mobile screen width threshold
+      setIsMobile(window.innerWidth <= 768);
       if (window.innerWidth <= 768) {
-        setCollapsed(true); // Automatically collapse on mobile
+        setCollapsed(true);
       } else {
-        setCollapsed(false); // Uncollapse on larger screens
+        setCollapsed(false);
       }
     };
 
     window.addEventListener("resize", handleResize);
-    handleResize(); // Check on initial load
+    handleResize();
 
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const sidebarWidth = collapsed ? 64 : 256;
+
+  const navigation = useNavigate();
 
   return (
     <div className="flex min-h-screen bg-gray-100 text-gray-900 transition-all duration-300">
@@ -41,11 +42,14 @@ const DashboardLayout: React.FC = () => {
         className="flex-1 transition-all duration-300"
         style={{ marginLeft: sidebarWidth }}
       >
-        {/* Header */}
         <Header
           onLogout={() => {}}
-          onChangePassword={() => {}}
-          onUpdateProfile={() => {}}
+          onChangePassword={() => {
+            navigation("/dashboard/change-password");
+          }}
+          onUpdateProfile={() => {
+            navigation("/dashboard/profile");
+          }}
           username="Jane Doe"
           avatarUrl="https://i.pravatar.cc/150?img=4"
         />

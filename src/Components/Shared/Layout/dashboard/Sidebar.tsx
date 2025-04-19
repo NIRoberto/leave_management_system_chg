@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Menu, Tooltip } from "antd";
 import {
   DashboardOutlined,
   TeamOutlined,
@@ -9,8 +8,12 @@ import {
   UserOutlined,
   MenuUnfoldOutlined,
   MenuFoldOutlined,
+  BellOutlined,
+  ToolOutlined,
+  SyncOutlined,
+  LockOutlined,
 } from "@ant-design/icons";
-import type { MenuProps } from "antd";
+import { Button, Menu, MenuProps, Tooltip } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Role } from "../types/role";
 
@@ -26,15 +29,20 @@ const Sidebar: React.FC<SidebarProps> = ({
   onCollapseChange,
 }) => {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
+  const [selectedKey, setSelectedKey] = useState<string>("");
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [selectedKey, setSelectedKey] = useState<string>("");
-
   useEffect(() => {
-    const path = location.pathname.split("/")[1];
-    setSelectedKey(path);
+    const segments = location.pathname.split("/").filter(Boolean);
+    setSelectedKey(segments[segments.length - 1]);
+    setOpenKeys([segments[0]]);
   }, [location]);
+
+  const handleClick: MenuProps["onClick"] = ({ key }) => {
+    navigate(`/dashboard/${key}`);
+    setSelectedKey(key);
+  };
 
   const handleOpenChange = (keys: string[]) => {
     setOpenKeys(keys);
@@ -44,14 +52,44 @@ const Sidebar: React.FC<SidebarProps> = ({
     onCollapseChange?.(!collapsed);
   };
 
-  const handleClick: MenuProps["onClick"] = ({ key }) => {
-    navigate(`/${key}`);
-    setSelectedKey(key);
-  };
+  const navigation = useNavigate();
+
+  const adminItems: MenuProps["items"] =
+    currentRole === "admin"
+      ? [
+          {
+            key: "leave-approval",
+            icon: <FileTextOutlined />,
+            label: "Leave Approvals",
+          },
+          {
+            key: "manage-users",
+            icon: <TeamOutlined />,
+            label: "Manage Users",
+          },
+          {
+            key: "admin",
+            icon: <SettingOutlined />,
+            label: "Leave Settings",
+            children: [
+              {
+                key: "manage-leave-types",
+                icon: <ToolOutlined />,
+                label: "Manage Types",
+              },
+              {
+                key: "adjust-leave-balance",
+                icon: <SyncOutlined />,
+                label: "Adjust Balance",
+              },
+            ],
+          },
+        ]
+      : [];
 
   const menuItems: MenuProps["items"] = [
     {
-      key: "dashboard",
+      key: "overview",
       icon: <DashboardOutlined />,
       label: "Dashboard",
     },
@@ -60,75 +98,76 @@ const Sidebar: React.FC<SidebarProps> = ({
       icon: <CalendarOutlined />,
       label: "Leave",
       children: [
-        { key: "apply-leave", label: "Apply for Leave" },
+        { key: "apply-leave", label: "All Leave" },
         { key: "leave-history", label: "Leave History" },
       ],
     },
     {
-      key: "team",
+      key: "team-calendar",
       icon: <TeamOutlined />,
-      label: "Team Calendar",
-      children: [
-        { key: "team-overview", label: "Overview" },
-        { key: "department", label: "By Department" },
-      ],
+      label: "Calendar",
     },
-    ...(currentRole === "admin" || currentRole === "manager"
-      ? [
-          {
-            key: "approvals",
-            icon: <FileTextOutlined />,
-            label: "Leave Approvals",
-          },
-        ]
-      : []),
-    ...(currentRole === "admin"
-      ? [
-          {
-            key: "admin",
-            icon: <SettingOutlined />,
-            label: "Admin Panel",
-            children: [
-              { key: "manage-leaves", label: "Manage Leave Types" },
-              { key: "reports", label: "Reports" },
-            ],
-          },
-        ]
-      : []),
+    {
+      key: "notifications",
+      icon: <BellOutlined />,
+      label: "Notifications",
+    },
+    ...adminItems,
     {
       key: "settings",
       icon: <SettingOutlined />,
       label: "Settings",
       children: [
-        { key: "profile-settings", label: "Profile Settings" },
-        { key: "account-settings", label: "Account Settings" },
+        {
+          key: "profile",
+          icon: <UserOutlined />,
+          label: "Profile Settings",
+        },
+        {
+          key: "change-password",
+          icon: <LockOutlined />,
+          label: "Change Password",
+        },
       ],
-    },
-    {
-      key: "profile",
-      icon: <UserOutlined />,
-      label: "Profile",
     },
   ];
 
-  const menuItemsForFooter: MenuProps["items"] = [
+  const handleLogout = () => {
+    // Handle logout logic here
+    console.log("Logout clicked");
+    navigate("/login");
+  };
+
+  const footerButton = [
     {
       key: "logout",
       icon: <UserOutlined />,
       label: "Logout",
+      onClick: () => {
+        handleLogout();
+      },
     },
   ];
 
+  useEffect(() => {
+    const path = location.pathname.replace("/dashboard/", ""); // e.g., "settings/profile"
+    setSelectedKey(path);
+
+    // Automatically open dropdown for nested menu
+    const rootKey = path.split("/")[0]; // e.g., "settings"
+    setOpenKeys([rootKey]);
+  }, [location]);
+
   return (
     <aside
-      className={`fixed flex flex-col justify-between top-0 left-0 z-40 h-screen transition-all duration-300 bg-main_olivine text-white shadow-lg ${
+      className={`fixed top-0 left-0 z-40 flex flex-col justify-between h-screen transition-all duration-300 bg-main_viridian shadow-lg ${
         collapsed ? "w-16" : "w-64"
       }`}
     >
       <div>
         <div className="flex items-center justify-between px-4 py-4 border-b border-white/20">
           {!collapsed && (
-            <h1 className="text-xl font-semibold tracking-wide text-white">
+            <h1 className="text-xl font-bold text-white tracking-wide">
               LeaveSys
             </h1>
           )}
@@ -140,35 +179,35 @@ const Sidebar: React.FC<SidebarProps> = ({
             {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
           </button>
         </div>
-
         <Menu
           mode="inline"
-          theme="light"
           selectedKeys={[selectedKey]}
           openKeys={openKeys}
-          onClick={handleClick}
           onOpenChange={handleOpenChange}
+          onClick={handleClick}
           items={menuItems}
-          className="bg-transparent text-sm font-medium border-none"
+          className="bg-transparent !text-white text-sm font-medium border-none"
         />
       </div>
-      <div className="mt-auto mx-auto">
-        <Menu
-          mode="inline"
-          theme="light"
-          selectedKeys={[selectedKey]}
-          openKeys={openKeys}
-          onClick={handleClick}
-          onOpenChange={handleOpenChange}
-          items={menuItemsForFooter}
-          className="bg-transparent text-sm font-medium border-none"
-        />
-        {/* Footer */}
-        <div className="flex items-center justify-center p-4 border-t border-white/20">
+      <div>
+        {/* //  logout  */}
+
+        <div className="flex items-start ">
+          <Button
+            type="primary"
+            icon={<UserOutlined />}
+            className="w-full text-white bg-main_viridian hover:bg-main_orange transition-all"
+            onClick={handleLogout}
+          >
+            Logout
+          </Button>
+        </div>
+
+        <div className="px-4 py-2 border-t border-white/20">
           {!collapsed && (
-            <Tooltip title="Leave Management System" placement="top">
-              <span className="text-xs font-medium text-white">
-                © ${new Date().getFullYear()} LeaveSys
+            <Tooltip title="Leave Management System">
+              <span className="text-xs text-white font-light">
+                © {new Date().getFullYear()} LeaveSys
               </span>
             </Tooltip>
           )}
