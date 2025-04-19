@@ -1,11 +1,11 @@
 
-# 🏖️ Leave Management System
+#  Leave Management System
 
 A modern leave management system built with a full-stack architecture to streamline employee leave applications, approvals, and HR management.
 
 
 
-## 🚀 Tech Stack
+##  Tech Stack
 
 **Frontend:**
 - ⚛️ React (with Vite & TypeScript)
@@ -118,9 +118,8 @@ cd backend
 ./mvnw spring-boot:run
 ```
 
----
 
-## 🌐 Environment Variables
+## Environment Variables
 
 ### Frontend (`.env`)
 ```env.example
@@ -157,25 +156,25 @@ The backend uses REST APIs documented with Swagger:
 
 
 
-## 📄 License
+##  License
 
 MIT License © [NIRoberto ]
 
 
 
-## 👨‍💻 Contributions
+## Contributions
 
 We welcome pull requests! Please open an issue first to discuss what you’d like to change.
 
 
 
-## 📧 Contact
+## Contact
 
 For support or inquiries, reach out to **robertwilly668@gmail.com**
 or open an issue on GitHub.
 ```
 
-## 📜 Acknowledgements
+## Acknowledgements
 
 - [React](https://reactjs.org/)
 - [Spring Boot](https://spring.io/projects/spring-boot)
@@ -184,7 +183,7 @@ or open an issue on GitHub.
 - [Microsoft OAuth](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-overview)
 - [TanStack Query](https://tanstack.com/query/v4)
 
-## 🛠️ Future Enhancements
+##  Future Enhancements
 
 - Mobile app version
 - Advanced analytics dashboard
