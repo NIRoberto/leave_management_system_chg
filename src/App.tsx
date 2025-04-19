@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
-import PageTitle from "./Components/Shared/SEO/dynamic_title";
+
 import routes, { RouteItem } from "./Config/layout_routes";
+import PageTitle from "./Components/Shared/DynamicTitle";
 
 function App() {
   const renderRoutes = (routes: RouteItem[]) => {
