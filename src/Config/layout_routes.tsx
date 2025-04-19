@@ -1,5 +1,4 @@
 import { ReactElement } from "react";
-import AuthLayout from "../Components/Shared/layout/AuthLayout";
 import DashboardLayout from "../Components/Shared/layout/DashboardLayout";
 import TeamCalenderComp from "../Components/CalenderView/TeamCalenderComp";
 import DashboardOverView from "../Components/OverView/DashboardOverView";
@@ -13,6 +12,7 @@ import UsersManagement from "../Components/Users/UsersManagement";
 import LeaveTypesManagement from "../Components/LeaveManagement/LeaveTypesMagement";
 import LeaveBalanceManagement from "../Components/LeaveManagement/LeaveBalance";
 import Login from "../Components/Auth/Login";
+import AuthLayout from "../Components/Shared/layout/AuthLayout";
 
 const Contact = () => <div>Contact</div>;
 const MarketingHome = () => (
