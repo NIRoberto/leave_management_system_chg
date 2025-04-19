@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "./dashboard/Sidebar";
-import Header from "./dashboard/Header";
+import Sidebar from "./Dashboard/Sidebar";
+import Header from "./Dashboard/Header";
 import { Outlet, useNavigate } from "react-router-dom";
 import { Role } from "./types/role";
 
