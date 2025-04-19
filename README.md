@@ -1,9 +1,9 @@
-```md
+
 # 🏖️ Leave Management System
 
 A modern leave management system built with a full-stack architecture to streamline employee leave applications, approvals, and HR management.
 
----
+
 
 ## 🚀 Tech Stack
 
@@ -172,6 +172,32 @@ We welcome pull requests! Please open an issue first to discuss what you’d lik
 ## 📧 Contact
 
 For support or inquiries, reach out to **robertwilly668@gmail.com**
-
+or open an issue on GitHub.
 ```
+
+## 📜 Acknowledgements
+
+- [React](https://reactjs.org/)
+- [Spring Boot](https://spring.io/projects/spring-boot)
+- [MySQL](https://www.mysql.com/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Microsoft OAuth](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-overview)
+- [TanStack Query](https://tanstack.com/query/v4)
+
+## 🛠️ Future Enhancements
+
+- Mobile app version
+- Advanced analytics dashboard
+- Integration with other HR tools
+- Multi-language support
+- Dark mode
+- Customizable leave policies
+- Performance optimizations
+- User feedback system
+- Enhanced security features
+- AI-based leave prediction
+- Integration with payroll systems
+
+
+
 
