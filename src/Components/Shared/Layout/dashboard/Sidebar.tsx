@@ -15,10 +15,9 @@ import {
 } from "@ant-design/icons";
 import { Button, Menu, MenuProps, Tooltip } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Role } from "../types/role";
 
 type SidebarProps = {
-  currentRole: Role;
+  currentRole: string;
   collapsed?: boolean;
   onCollapseChange?: (collapsed: boolean) => void;
 };
@@ -54,38 +53,58 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const navigation = useNavigate();
 
-  const adminItems: MenuProps["items"] =
-    currentRole === "admin"
-      ? [
-          {
-            key: "leave-approval",
-            icon: <FileTextOutlined />,
-            label: "Leave Approvals",
-          },
-          {
-            key: "manage-users",
-            icon: <TeamOutlined />,
-            label: "Manage Users",
-          },
-          {
-            key: "admin",
-            icon: <SettingOutlined />,
-            label: "Leave Settings",
-            children: [
-              {
-                key: "manage-leave-types",
-                icon: <ToolOutlined />,
-                label: "Manage Types",
-              },
-              {
-                key: "adjust-leave-balance",
-                icon: <SyncOutlined />,
-                label: "Adjust Balance",
-              },
-            ],
-          },
-        ]
-      : [];
+  console.log("currentRole", currentRole);
+
+  const adminItems: MenuProps["items"] = ["admin", "ADMIN", "Admin"].includes(
+    currentRole
+  )
+    ? [
+        {
+          key: "leave-approval",
+          icon: <FileTextOutlined />,
+          label: "Leave Approvals",
+        },
+        {
+          key: "manage-users",
+          icon: <TeamOutlined />,
+          label: "Manage Users",
+        },
+        {
+          key: "admin",
+          icon: <SettingOutlined />,
+          label: "Leave Settings",
+          children: [
+            {
+              key: "manage-leave-types",
+              icon: <ToolOutlined />,
+              label: "Manage Types",
+            },
+            {
+              key: "adjust-leave-balance",
+              icon: <SyncOutlined />,
+              label: "Adjust Balance",
+            },
+          ],
+        },
+      ]
+    : [];
+
+  const managerItems: MenuProps["items"] = ["manager", "MANAGER"].includes(
+    currentRole
+  )
+    ? [
+        {
+          key: "leave-approval",
+          icon: <FileTextOutlined />,
+          label: "Leave Approvals",
+        },
+        // {
+        //   key: "manage-users",
+        //   icon: <TeamOutlined />,
+        //   label: "Manage Users",
+        // },
+      ]
+    : [];
 
   const menuItems: MenuProps["items"] = [
     {
@@ -112,6 +131,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       icon: <BellOutlined />,
       label: "Notifications",
     },
+    ...managerItems,
     ...adminItems,
     {
       key: "settings",

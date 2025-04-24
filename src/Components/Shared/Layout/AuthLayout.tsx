@@ -3,20 +3,20 @@ import { Outlet } from "react-router-dom";
 
 const AuthLayout = () => {
   return (
-    <div className="min-h-screen grid md:grid-cols-2 bg-gray-100">
-      {/* Left (Brand / Visual) */}
-      <div className="hidden md:flex items-center justify-center bg-blue-700 text-white p-10">
-        <div className="max-w-md text-center">
-          <h2 className="text-4xl font-bold mb-4">Leave Management System</h2>
-          <p className="text-lg text-blue-100">
-            Manage your team’s leave requests and approvals with ease.
+    <div className="min-h-screen grid md:grid-cols-2 bg-main_flax">
+      {/* Left Panel: Visual & Branding */}
+      <div className="hidden md:flex items-center justify-center bg-main_viridian text-white p-12">
+        <div className="max-w-md text-center space-y-4">
+          <h2 className="text-4xl font-extrabold">Leave Management System</h2>
+          <p className="text-lg text-main_flax">
+            Seamlessly manage team leave requests and approvals.
           </p>
         </div>
       </div>
 
-      {/* Right (Form Content) */}
-      <div className="flex items-center justify-center p-6">
-        <div className="w-full max-w-md bg-white rounded-xl text-black text-6xl shadow-lg p-8">
+      {/* Right Panel: Auth Form */}
+      <div className="flex items-center justify-center p-6 bg-white">
+        <div className="w-full max-w-lg rounded-2xl shadow-x p-8  ">
           <Outlet />
         </div>
       </div>

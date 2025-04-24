@@ -1,220 +1,218 @@
 import React, { useState } from "react";
+import { Table, Button, Drawer, Modal, message } from "antd";
 import {
-  Table,
-  Button,
-  Modal,
-  Typography,
-  message,
-  Popconfirm,
-  Tag,
-  Input,
-  Drawer,
-} from "antd";
-import {
+  EditOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
-  EyeOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
+import { TextInput, SelectInput } from "../Shared/UI/FormInput";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+import { useAppContext } from "../../Provider/AppProvider";
 
-const { Title } = Typography;
+const LeaveApprovalManagement = () => {
+  const [visibleDrawer, setVisibleDrawer] = useState(false);
+  const [visibleModal, setVisibleModal] = useState(false);
+  const [currentRequest, setCurrentRequest] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
 
-const LeavesApprovalsManagement = () => {
-  const [leaveRequests, setLeaveRequests] = useState([
-    {
-      id: 1,
-      employee: "John Doe",
-      date: "2025-04-20",
-      reason: "Personal",
-      status: "Pending",
-    },
-    {
-      id: 2,
-      employee: "Jane Smith",
-      date: "2025-04-21",
-      reason: "Sick",
-      status: "Pending",
-    },
-    {
-      id: 3,
-      employee: "Sam Wilson",
-      date: "2025-04-22",
-      reason: "Vacation",
-      status: "Pending",
-    },
-  ]);
-  const [isDrawerVisible, setIsDrawerVisible] = useState(false);
-  const [currentRequest, setCurrentRequest] = useState<any>(null);
-  const [filteredRequests, setFilteredRequests] = useState(leaveRequests);
-  const [searchTerm, setSearchTerm] = useState("");
+  const { leaveRecords, leaveStatuses, leaveTypes } = useAppContext();
 
-  // Handle approve action with confirmation
-  const handleApprove = (id: number) => {
-    Modal.confirm({
-      title: "Are you sure you want to approve this leave request?",
-      onOk: () => {
-        const updatedRequests = leaveRequests.map((request) =>
-          request.id === id ? { ...request, status: "Approved" } : request
-        );
-        setLeaveRequests(updatedRequests);
-        message.success("Leave request approved successfully!");
-      },
-    });
+  const showDrawer = (request = null) => {
+    if (request) {
+      setIsEditing(true);
+      setCurrentRequest(request);
+    } else {
+      setIsEditing(false);
+      setCurrentRequest(null);
+    }
+    setVisibleDrawer(true);
   };
 
-  // Handle reject action with confirmation
-  const handleReject = (id: number) => {
-    const updatedRequests = leaveRequests.map((request) =>
-      request.id === id ? { ...request, status: "Rejected" } : request
-    );
-    setLeaveRequests(updatedRequests);
-    message.error("Leave request rejected!");
+  const closeDrawer = () => setVisibleDrawer(false);
+
+  const showApprovalModal = (request: any) => {
+    setCurrentRequest(request);
+    setVisibleModal(true);
   };
 
-  // Handle view details in a Drawer
-  const handleViewDetails = (record: any) => {
-    setCurrentRequest(record);
-    setIsDrawerVisible(true);
+  const handleApproval = (status: string) => {
+    // Update leave request status logic here
+    message.success(`Leave request ${status}`);
+    setVisibleModal(false);
   };
 
-  // Handle drawer close
-  const handleDrawerClose = () => {
-    setIsDrawerVisible(false);
-    setCurrentRequest(null);
-  };
+  const validationSchema = Yup.object({
+    employee: Yup.string().required("Employee is required"),
+    leaveType: Yup.string().required("Leave type is required"),
+    startDate: Yup.date().required("Start date is required"),
+    endDate: Yup.date().required("End date is required"),
+  });
 
-  // Handle search term change
-  const handleSearchChange = (e: any) => {
-    const term = e.target.value.toLowerCase();
-    setSearchTerm(term);
-    const filtered = leaveRequests.filter(
-      (request) =>
-        request.employee.toLowerCase().includes(term) ||
-        request.reason.toLowerCase().includes(term)
-    );
-    setFilteredRequests(filtered);
-  };
-
-  // Columns for the table
   const columns = [
-    { title: "Employee", dataIndex: "employee", key: "employee" },
-    { title: "Leave Date", dataIndex: "date", key: "date" },
-    { title: "Reason", dataIndex: "reason", key: "reason" },
+    {
+      title: "Employee",
+      dataIndex: "employee",
+      key: "employee",
+    },
+    {
+      title: "Leave Type",
+      dataIndex: "leaveType",
+      key: "leaveType",
+      render: (type: string) =>
+        leaveTypes?.find((lt: any) => lt.value === type)?.name || type,
+    },
+    {
+      title: "Start Date",
+      dataIndex: "startDate",
+      key: "startDate",
+    },
+    {
+      title: "End Date",
+      dataIndex: "endDate",
+      key: "endDate",
+    },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (status: string) => (
-        <Tag
-          color={
-            status === "Approved"
-              ? "green"
-              : status === "Rejected"
-              ? "red"
-              : "gold"
-          }
-        >
-          {status}
-        </Tag>
-      ),
+      render: (status: string) =>
+        leaveStatuses?.find((ls: any) => ls.value === status)?.name || status,
     },
     {
       title: "Actions",
       key: "actions",
       render: (_: any, record: any) => (
-        <div className="flex space-x-2">
+        <>
           <Button
-            type="primary"
-            icon={<CheckCircleOutlined />}
-            onClick={() => handleApprove(record.id)}
-            disabled={record.status !== "Pending"}
-            className="btn-approve"
-          >
-            Approve
-          </Button>
-          <Popconfirm
-            title="Are you sure to reject this leave?"
-            onConfirm={() => handleReject(record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
+            icon={<EditOutlined />}
+            onClick={() => showDrawer(record)}
+            className="mr-2"
+          />
+          {record.status === "pending" ? (
+            <Button
+              icon={<CheckCircleOutlined />}
+              onClick={() => showApprovalModal(record)}
+              className="mr-2"
+            >
+              Approve
+            </Button>
+          ) : (
             <Button
               icon={<CloseCircleOutlined />}
-              disabled={record.status !== "Pending"}
-              className="btn-reject"
+              onClick={() => showApprovalModal(record)}
             >
               Reject
             </Button>
-          </Popconfirm>
-          <Button
-            type="link"
-            icon={<EyeOutlined />}
-            onClick={() => handleViewDetails(record)}
-            className="text-blue-500"
-          >
-            View Details
-          </Button>
-        </div>
+          )}
+        </>
       ),
     },
   ];
 
   return (
     <div className="container mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <Title level={2} className="text-center text-gray-800 mb-6">
-        Leave Approval Management
-      </Title>
-
-      {/* Filter and Search */}
-      <div className="mb-6">
-        <Input
-          placeholder="Search by Employee or Reason"
-          value={searchTerm}
-          onChange={handleSearchChange}
-          style={{ width: "100%" }}
-        />
+      <div className="flex items-center justify-between mb-6 border-b pb-2">
+        <h2 className="text-2xl font-semibold text-dark">Leave Requests</h2>
+        <Button
+          type="primary"
+          size="large"
+          onClick={() => showDrawer()}
+          className="bg-main_viridian hover:bg-main_bitter_switter transition-colors duration-200 text-white px-6 py-2.5 rounded-md text-base font-semibold shadow-sm"
+        >
+          + New Leave Request
+        </Button>
       </div>
-
-      {/* Table for leave requests */}
-      <Table
-        columns={columns}
-        dataSource={filteredRequests}
-        rowKey="id"
-        pagination={{ pageSize: 5 }}
-        className="mb-6"
-      />
-
-      {/* Drawer for viewing leave request details */}
+      <Table columns={columns} dataSource={leaveRecords} rowKey="id" />
       <Drawer
-        title="Leave Request Details"
-        visible={isDrawerVisible}
-        onClose={handleDrawerClose}
-        width={600}
+        title={isEditing ? "Edit Leave Request" : "Create Leave Request"}
+        open={visibleDrawer}
+        onClose={closeDrawer}
+        width={400}
       >
-        {currentRequest && (
-          <div>
-            <p>
-              <strong>Employee:</strong> {currentRequest.employee}
-            </p>
-            <p>
-              <strong>Leave Date:</strong> {currentRequest.date}
-            </p>
-            <p>
-              <strong>Reason:</strong> {currentRequest.reason}
-            </p>
-            <p>
-              <strong>Status:</strong>{" "}
-              <Tag
-                color={currentRequest.status === "Approved" ? "green" : "red"}
-              >
-                {currentRequest.status}
-              </Tag>
-            </p>
-          </div>
-        )}
+        <Formik
+          initialValues={{
+            employee: "employee",
+            leaveType: "leaveType",
+            startDate: "startDate",
+            endDate: "endDate",
+          }}
+          enableReinitialize
+          validationSchema={validationSchema}
+          onSubmit={(values) => {
+            if (isEditing) {
+              // Update logic here
+              message.success("Leave request updated successfully!");
+            } else {
+              // Create logic here
+              message.success("Leave request submitted successfully!");
+            }
+            closeDrawer();
+          }}
+        >
+          {({ values, handleChange, touched, errors }) => (
+            <Form>
+              <TextInput
+                label="Employee Name"
+                name="employee"
+                value={values.employee}
+                onChange={handleChange}
+              />
+              <SelectInput
+                label="Leave Type"
+                name="leaveType"
+                options={leaveTypes}
+                value={values.leaveType}
+                onChange={handleChange}
+              />
+              <TextInput
+                label="Start Date"
+                name="startDate"
+                type="date"
+                value={values.startDate}
+                onChange={handleChange}
+              />
+              <TextInput
+                label="End Date"
+                name="endDate"
+                type="date"
+                value={values.endDate}
+                onChange={handleChange}
+              />
+              <Button type="primary" htmlType="submit" block className="mt-4">
+                {isEditing ? "Update" : "Submit"} Leave Request
+              </Button>
+            </Form>
+          )}
+        </Formik>
       </Drawer>
+
+      <Modal
+        title="Confirm Leave Approval"
+        open={visibleModal}
+        onCancel={() => setVisibleModal(false)}
+        footer={[
+          <Button key="reject" onClick={() => handleApproval("rejected")}>
+            Reject
+          </Button>,
+          <Button
+            key="approve"
+            type="primary"
+            onClick={() => handleApproval("approved")}
+          >
+            Approve
+          </Button>,
+        ]}
+      >
+        <p>Are you sure you want to approve/reject this leave request?</p>
+        <p>{/* <strong>Employee:</strong> {currentRequest?.} */}</p>
+        {/* <p>
+          <strong>Leave Type:</strong>{" "}
+          {leaveTypes?.find((lt) => lt.id === currentRequest?.leaveType)?.label}
+        </p> */}
+      </Modal>
     </div>
   );
 };
 
-export default LeavesApprovalsManagement;
+export default LeaveApprovalManagement;
