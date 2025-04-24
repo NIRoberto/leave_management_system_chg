@@ -8,3 +8,29 @@
 .ant-menu-submenu-title {
   color: "#fff" !important;
 }
+
+/* styles.css or your global Tailwind CSS file */
+.btn-primary {
+  @apply bg-main_viridian hover:bg-main_olivine transition-colors duration-200 text-white py-3 rounded-none text-base font-semibold shadow-md;
+}
+
+/* Consistent green selection and hover theme for the sidebar menu */
+.ant-menu > .ant-menu-item:hover,
+.ant-menu > .ant-menu-submenu:hover,
+.ant-menu > .ant-menu-item-active,
+.ant-menu > .ant-menu-submenu-active,
+.ant-menu > .ant-menu-item-open,
+.ant-menu > .ant-menu-submenu-open,
+.ant-menu > .ant-menu-item-selected,
+.ant-menu > .ant-menu-submenu-selected,
+.ant-menu-submenu-title:hover,
+.ant-menu-submenu-open,
+.ant-menu-submenu-selected {
+  background-color: #8cb369 !important;
+  color: white !important;
+}
+
+/* Ensure default submenu title remains white */
+.ant-menu-submenu-title {
+  color: white !important;
+}

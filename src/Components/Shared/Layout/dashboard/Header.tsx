@@ -17,6 +17,7 @@ import type { MenuProps } from "antd";
 // components/Clock.tsx
 
 import { useEffect, useState } from "react";
+import { useAppContext } from "../../../../Provider/AppProvider";
 
 type HeaderProps = {
   onLogout: () => void;
@@ -109,7 +110,7 @@ const Header: React.FC<HeaderProps> = ({
       {/* System Title */}
       <div className="flex items-center gap-3">
         {/* Logo/Icon */}
-        <div className="bg-blue-100 text-blue-700 p-2 rounded-full">
+        <div className="bg-blue-100 text-main_viridian p-2 rounded-full">
           <svg
             className="w-6 h-6"
             fill="none"
@@ -127,7 +128,7 @@ const Header: React.FC<HeaderProps> = ({
 
         {/* Text Branding */}
         <div className="flex flex-col">
-          <h1 className="text-lg font-bold text-blue-700">
+          <h1 className="text-lg font-bold text-main_viridian">
             {/* Greeting based on time  */}
             {(() => {
               const hour = new Date().getHours();
@@ -135,7 +136,7 @@ const Header: React.FC<HeaderProps> = ({
               else if (hour < 18) return "Good Afternoon";
               else return "Good Evening";
             })()}
-            , {username.split(" ")[0]}!
+            , {username}!
           </h1>
           <span className="text-xs text-gray-500">
             Plan. Request. Manage your leave.

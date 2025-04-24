@@ -15,11 +15,6 @@ import AuthLayout from "../Components/Shared/Layout/AuthLayout";
 import DashboardLayout from "../Components/Shared/Layout/DashboardLayout";
 
 const Contact = () => <div>Contact</div>;
-const MarketingHome = () => (
-  <div>
-    <h1>Marketing Home</h1>
-  </div>
-);
 
 const Register = () => <div>Register</div>;
 const ManageLeaveTypes = () => <div>Manage Leave Types</div>;
@@ -50,7 +45,7 @@ const routes: RouteItem[] = [
     layout: AuthLayout,
     path: "/",
     children: [
-      { index: true, element: <MarketingHome /> },
+      { index: true, path: "", element: <Login /> },
       { path: "contact", element: <Contact /> },
       { path: "login", element: <Login /> },
       { path: "register", element: <Register /> },
@@ -72,9 +67,7 @@ const routes: RouteItem[] = [
         path: "adjust-leave-balance",
         element: (
           <LeaveBalanceManagement
-            leaveType="Annual Leave"
-            totalDays={20}
-            usedDays={5}
+        
           />
         ),
       },

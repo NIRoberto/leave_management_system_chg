@@ -2,12 +2,16 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "./Dashboard/Sidebar";
 import Header from "./Dashboard/Header";
 import { Outlet, useNavigate } from "react-router-dom";
-import { Role } from "./types/role";
+import { useAppContext } from "../../../Provider/AppProvider";
+import { Cookie } from "lucide-react";
+import { StorageKeys } from "../../../Config/StorageKeys";
+import Cookies from "js-cookie";
+import { Notify } from "notiflix";
+import { Role } from "../../Types/usersTypes";
 
 const DashboardLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const userRole: Role = "admin";
 
   useEffect(() => {
     const handleResize = () => {
@@ -26,14 +30,30 @@ const DashboardLayout: React.FC = () => {
   }, []);
 
   const sidebarWidth = collapsed ? 64 : 256;
-
   const navigation = useNavigate();
+
+  const { LoggedInUser, isLoggedInUserLoading, isLoggedInUserError, roles } =
+    useAppContext();
+
+  const [currentRole, setCurrentRole] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    if (roles) {
+      const foundRole = roles.find(
+        (role: Role) => role.id === LoggedInUser?.roleId
+      );
+      if (foundRole) {
+        setCurrentRole(foundRole.name);
+      }
+    }
+  }, [roles, LoggedInUser]);
+
+  console.log(LoggedInUser);
 
   return (
     <div className="flex min-h-screen bg-gray-100 text-gray-900 transition-all duration-300">
       {/* Sidebar */}
       <Sidebar
-        currentRole={userRole}
+        currentRole={currentRole || "staff"}
         collapsed={collapsed}
         onCollapseChange={setCollapsed}
       />
@@ -43,15 +63,28 @@ const DashboardLayout: React.FC = () => {
         style={{ marginLeft: sidebarWidth }}
       >
         <Header
-          onLogout={() => {}}
+          onLogout={() => {
+            localStorage.removeItem(StorageKeys.ACCESS_TOKEN);
+            Cookies.remove(StorageKeys.ACCESS_TOKEN);
+            Notify.success("Logout successful");
+            setTimeout(() => {
+              navigation("/login");
+            }, 1500);
+          }}
           onChangePassword={() => {
             navigation("/dashboard/change-password");
           }}
           onUpdateProfile={() => {
             navigation("/dashboard/profile");
           }}
-          username="Jane Doe"
-          avatarUrl="https://i.pravatar.cc/150?img=4"
+          username={
+            LoggedInUser?.first_name && LoggedInUser?.last_name
+              ? ` ${LoggedInUser?.last_name[0].toUpperCase()} ${
+                  LoggedInUser?.first_name
+                }`
+              : "User"
+          }
+          avatarUrl="https://res.cloudinary.com/nrob/image/upload/v1721084009/tip%20top%20consultancy/xorguxv2x1bwferxtkfo.webp"
         />
         <main className="p-6 sm:p-8">
           <Outlet />
