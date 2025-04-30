@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "./Dashboard/Sidebar";
-import Header from "./Dashboard/Header";
+
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAppContext } from "../../../Provider/AppProvider";
 import { Cookie } from "lucide-react";
@@ -8,6 +7,8 @@ import { StorageKeys } from "../../../Config/StorageKeys";
 import Cookies from "js-cookie";
 import { Notify } from "notiflix";
 import { Role } from "../../Types/usersTypes";
+import Header from "./Dashboard/Header";
+import Sidebar from "./Dashboard/SidebarComp";
 
 const DashboardLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
