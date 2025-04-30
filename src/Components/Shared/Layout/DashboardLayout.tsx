@@ -7,8 +7,8 @@ import { StorageKeys } from "../../../Config/StorageKeys";
 import Cookies from "js-cookie";
 import { Notify } from "notiflix";
 import { Role } from "../../Types/usersTypes";
-import Header from "./Dashboard/Header";
 import Sidebar from "./Dashboard/SidebarComp";
+import Header from "./Dashboard/HeaderComp";
 
 const DashboardLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
