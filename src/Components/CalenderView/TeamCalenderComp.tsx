@@ -2,24 +2,43 @@ import React from "react";
 import { Calendar, Badge } from "antd";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
+import { useAppContext } from "../../Provider/AppProvider";
 
 const TeamCalendarComp = () => {
-  // Sample data - replace with dynamic API data as needed
-  const sampleLeaveData: Record<
+  const { leaveRecords } = useAppContext();
+
+  // Transform leaveRecords to include only approved leaves
+  const approvedLeaveData: Record<
     string,
-    { type: "success" | "warning" | "error"; content: string }[]
-  > = {
-    "2025-04-20": [{ type: "success", content: "John - Annual Leave" }],
-    "2025-04-22": [
-      { type: "warning", content: "Alice - Sick Leave" },
-      { type: "error", content: "Mark - Emergency Leave" },
-    ],
-    "2025-04-25": [{ type: "success", content: "Team Outing" }],
-  };
+    { type: "success"; content: string }[]
+  > = React.useMemo(() => {
+    const data: Record<string, { type: "success"; content: string }[]> = {};
+
+    leaveRecords?.forEach((record: any) => {
+      if (record.leaveStatus?.name?.toLowerCase() === "approved") {
+        const dateKey = dayjs(record.start_date).format("YYYY-MM-DD");
+        const leaveType = record.leaveType?.name || "Leave";
+        const userName = `${record.user?.first_name || "Unknown"} ${
+          record.user?.last_name || ""
+        }`.trim();
+
+        if (!data[dateKey]) {
+          data[dateKey] = [];
+        }
+
+        data[dateKey].push({
+          type: "success",
+          content: `${userName} - ${leaveType}`,
+        });
+      }
+    });
+
+    return data;
+  }, [leaveRecords]);
 
   const getListData = (value: Dayjs) => {
     const dateKey = value.format("YYYY-MM-DD");
-    return sampleLeaveData[dateKey] || [];
+    return approvedLeaveData[dateKey] || [];
   };
 
   const dateCellRender = (value: Dayjs) => {
@@ -42,8 +61,7 @@ const TeamCalendarComp = () => {
           Team Leave Calendar
         </h2>
         <p className="text-gray-600 text-sm">
-          Stay informed about your team’s upcoming leaves, sick days, and other
-          planned absences.
+          Stay informed about your team’s approved leaves and planned absences.
         </p>
       </header>
 

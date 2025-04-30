@@ -104,7 +104,7 @@ const Login = () => {
                 htmlType="submit"
                 size="large"
                 loading={isPending}
-                className="w-full bg-main_viridian hover:bg-main_bitter_switter transition-colors duration-200 text-white py-3 !rounded-none text-base font-semibold shadow-md"
+                className="w-full bg-main_viridian hover:!bg-main_olivine transition-colors duration-200 text-white py-3 !rounded-none text-base font-semibold shadow-md"
               >
                 Login
               </Button>

@@ -1,14 +1,47 @@
-export interface Notification {
+export interface NotificationResponse {
   id: number;
-  user_id: number;
-  notification_type_id: number;
+  user: User;
+  notificationType: NotificationType;
   message: string;
-  is_read: "true" | "false";
-  created_at: string | null;
+  isRead: boolean;
+  createdAt: string;
 }
 
-export type  NotificationResponse =  Notification[];
+export type NotificationDataResponse = NotificationResponse[];
 
+export interface User {
+  id: number;
+  first_name: string;
+  last_name: string;
+  role: Role;
+  created_at: string;
+  updated_at: string;
+  gender: string | null;
+  profile_picture_url: string | null;
+  phone: string;
+  email: string;
+  password: string;
+}
+
+export interface Role {
+  id: number;
+  name: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+  hibernateLazyInitializer?: object;
+}
+
+export interface NotificationType {
+  id: number;
+  name: string;
+  label: string;
+  color: string;
+  icon: string;
+  createdAt: string;
+  updatedAt: string;
+  hibernateLazyInitializer?: object;
+}
 
 export interface NotificationType {
   id: number;

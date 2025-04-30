@@ -6,21 +6,37 @@ import {
   useFetchDataById,
 } from "../../Hooks/apiHooks";
 import { useAppContext } from "../../Provider/AppProvider";
-import { Button, Drawer, Tag } from "antd";
+import { Button, Drawer, Popconfirm, Tag } from "antd";
 import Table from "antd/es/table";
 import { LeaveRecord } from "../Types/leave";
 import { Form, Formik } from "formik";
 import { SelectInput, TextInput } from "../Shared/UI/FormInput";
 import * as Yup from "yup";
+import { Notify } from "notiflix";
 
 const LeaveManagement = () => {
   const { LoggedInUser, leaveTypes, leaveStatuses } = useAppContext();
 
-  const { data: LeaveRecordsResponse = [], isLoading: LeaveRecordsLoading } =
-    useFetchDataById<LeaveRecord[]>("leaveRequests", "leave/request/user", 2);
-
   const [isRequestLeaveDrawerVisible, setIsRequestLeaveDrawerVisible] =
     useState(false);
+
+  const { data: LeaveRecordsResponse = [], isLoading: LeaveRecordsLoading } =
+    useFetchDataById<LeaveRecord[]>(
+      "leaveRequestsUsers",
+      "leave/request/user",
+      LoggedInUser?.id ?? 0 //
+    );
+  const { mutate: cancelLeave } = useCreateWithAuthData("leave/cancel");
+  const handleCancelLeave = (id: number) => {
+    cancelLeave(id, {
+      onSuccess: () => {
+        Notify.success("Leave request cancelled successfully.");
+      },
+      onError: (error) => {
+        console.error("Error cancelling leave:", error);
+      },
+    });
+  };
 
   const columns = [
     {
@@ -28,12 +44,10 @@ const LeaveManagement = () => {
       dataIndex: "id",
       key: "id",
     },
-
     {
       title: "Leave Type",
       dataIndex: "leaveTypeName",
       key: "leaveTypeName",
-
       render: (text: string, record: any) => (
         <span className="font-medium text-gray-800">
           {record?.leaveType?.name}
@@ -63,30 +77,61 @@ const LeaveManagement = () => {
     {
       title: "Status",
       dataIndex: "leaveStatus",
-      key: "statusName",
-      render: (status: string | null, record: LeaveRecord) => {
-        const statusMap: Record<string, string> = {
+      key: "status",
+      render: (_: any, record: any) => {
+        const status = record?.leaveStatus?.name?.toLowerCase() || "unknown";
+
+        const statusColorMap: Record<string, string> = {
           approved: "green",
-          cancelled: "gray",
+          cancelled: "default",
           pending: "orange",
           rejected: "red",
         };
+
+const displayText =
+  status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+
         return (
-          <Tag color={statusMap[status || ""] || "default"}>
-            {record?.leaveStatus?.name?.toUpperCase() || "UNKNOWN"}
-          </Tag>
+          <Tag color={statusColorMap[status] || "default"}>{displayText}</Tag>
+        );
+      },
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_: any, record: LeaveRecord) => {
+        const canCancel = ["pending", "approved"].includes(
+          record?.leaveStatus?.name?.toLowerCase()
+        );
+
+        return canCancel ? (
+          <Popconfirm
+            title="Are you sure you want to cancel this leave request?"
+            onConfirm={() => handleCancelLeave(record.id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button
+              type="primary"
+              size="small"
+              className="!bg-main_sandy_brown hover:!bg-main_flax text-white outline-none border-none hover:!text-black transition-colors duration-200"
+              danger
+            >
+              Cancel
+            </Button>
+          </Popconfirm>
+        ) : (
+          <span className="text-gray-400">No Action</span>
         );
       },
     },
   ];
 
-  console.log("LeaveRecordsResponse", LeaveRecordsResponse);
-
   const showDrawer = () => {
     setIsRequestLeaveDrawerVisible(true);
   };
 
-  useEffect(() => {}, [LeaveRecordsResponse, leaveTypes, leaveStatuses]);
+  // useEffect(() => {}, [LeaveRecordsResponse, leaveTypes, leaveStatuses]);
 
   const {
     mutate: requestLeave,
@@ -98,12 +143,16 @@ const LeaveManagement = () => {
     const leaveRequest = {
       userId: LoggedInUser?.id,
       leaveTypeId: values.leaveType,
-      startDate: values.startDate,
-      endDate: values.endDate,
+      startDate: new Date(values.startDate),
+      endDate: new Date(values.endDate),
+      reviewerId: 2,
     };
 
     requestLeave(leaveRequest, {
       onSuccess: () => {
+        Notify.success(
+          "Leave request submitted successfully. Awaiting approval."
+        );
         setIsRequestLeaveDrawerVisible(false);
       },
       onError: (error) => {
@@ -260,7 +309,7 @@ const LeaveManagement = () => {
             columns={columns}
             rowKey="id"
             loading={LeaveRecordsLoading}
-            pagination={{ pageSize: 5 }}
+            pagination={{ pageSize: 10 }}
           />
         </div>
       </section>
