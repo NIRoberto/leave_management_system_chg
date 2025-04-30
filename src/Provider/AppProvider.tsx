@@ -17,6 +17,7 @@ import {
 } from "../Components/Types/usersTypes";
 import {
   LeaveRecord,
+  LeaveRecordByUserResponse,
   LeaveRecordsResponse,
   LeaveStatusResponse,
   LeaveTypeListResponse,
@@ -124,12 +125,14 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     `notifications?user_id=${LoggedInUser?.id}`
   );
 
-  const { data: LeaveRecordsByUserResponse = [], isLoading: LeaveRecordsByUserLoading } =
-    useFetchDataById<LeaveRecord[]>(
-      "leaveRequestsUsers",
-      "leave/request/user",
-      LoggedInUser?.id ?? 0 //
-    );
+  const {
+    data: LeaveRecordsByUserResponse,
+    isLoading: LeaveRecordsByUserLoading,
+  } = useFetchDataById<LeaveRecordByUserResponse>(
+    "leaveRequestsUsers",
+    "leave/request/user",
+    LoggedInUser?.id ?? 0 //
+  );
 
   return (
     <UserContext.Provider

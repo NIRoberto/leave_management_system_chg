@@ -3,7 +3,9 @@ import React, { useEffect, useState } from "react";
 import {
   useCreateData,
   useCreateWithAuthData,
+  useFetchData,
   useFetchDataById,
+  useUpdateWithTwoParameters,
 } from "../../Hooks/apiHooks";
 import { useAppContext } from "../../Provider/AppProvider";
 import { Button, Drawer, Popconfirm, Tag } from "antd";
@@ -15,7 +17,12 @@ import * as Yup from "yup";
 import { Notify } from "notiflix";
 
 const LeaveManagement = () => {
-  const { LoggedInUser, leaveTypes, leaveStatuses } = useAppContext();
+  const {
+    LoggedInUser,
+    leaveTypes,
+    leaveStatuses,
+    LeaveRecordsByUserResponse,
+  } = useAppContext();
 
   const [isRequestLeaveDrawerVisible, setIsRequestLeaveDrawerVisible] =
     useState(false);
@@ -88,8 +95,8 @@ const LeaveManagement = () => {
           rejected: "red",
         };
 
-const displayText =
-  status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+        const displayText =
+          status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
 
         return (
           <Tag color={statusColorMap[status] || "default"}>{displayText}</Tag>
@@ -127,11 +134,13 @@ const displayText =
     },
   ];
 
+  const [chosenLeaveTypeId, setChosenLeaveTypeId] = useState<number | null>(
+    null
+  );
+
   const showDrawer = () => {
     setIsRequestLeaveDrawerVisible(true);
   };
-
-  // useEffect(() => {}, [LeaveRecordsResponse, leaveTypes, leaveStatuses]);
 
   const {
     mutate: requestLeave,
@@ -139,7 +148,68 @@ const displayText =
     error: leaveRequestError,
   } = useCreateWithAuthData("leave/request");
 
+  interface LeaveType {
+    id: number;
+    name: string;
+    description: string;
+    maxDaysPerYear: number;
+    isPaid: boolean;
+    createdAt: string;
+    updatedAt: string;
+  }
+
+  interface LeaveBalance {
+    id: number;
+    employeeId: number;
+    leaveType: LeaveType;
+    year: number;
+    totalDays: number;
+    usedDays: number;
+    createdAt: string;
+    updatedAt: string;
+  }
+
+  const {
+    data: leaveBalance,
+    isLoading: leaveBalancesLoading,
+    error: leaveBalancesError,
+    refetch: refetchLeaveBalance,
+  } = useFetchData<LeaveBalance>(
+    "api/leave-balances/employee",
+    `api/leave-balances/employee/${LoggedInUser?.id}/type/${chosenLeaveTypeId}`
+  );
+
   const handleSubmit = (values: any) => {
+    setChosenLeaveTypeId(values.leaveType);
+    refetchLeaveBalance();
+
+    var duration = Math.floor(
+      (new Date(values.endDate).getTime() -
+        new Date(values.startDate).getTime()) /
+        (1000 * 3600 * 24)
+    );
+
+    if (leaveBalance && leaveBalance.totalDays < duration) {
+      Notify.failure(
+        `Insufficient leave balance. You have ${leaveBalance.totalDays} days available.`
+      );
+      return;
+    }
+
+    //   prevent user from requesting two leave request with pending status on same leave type
+
+    const existingLeaveRequest = LeaveRecordsResponse.find(
+      (record: LeaveRecord) =>
+        record.leaveType.id === values.leaveType &&
+        record.leaveStatus.name === "pending"
+    );
+    if (existingLeaveRequest) {
+      Notify.failure(
+        "You already have a pending leave request for this leave type."
+      );
+      return;
+    }
+
     const leaveRequest = {
       userId: LoggedInUser?.id,
       leaveTypeId: values.leaveType,
@@ -154,6 +224,11 @@ const displayText =
           "Leave request submitted successfully. Awaiting approval."
         );
         setIsRequestLeaveDrawerVisible(false);
+
+        setTimeout(() => {
+          refetchLeaveBalance();
+          window.location.reload();
+        }, 2000);
       },
       onError: (error) => {
         console.error("Error requesting leave:", error);
@@ -269,7 +344,7 @@ const displayText =
                 htmlType="submit"
                 size="large"
                 loading={isPending}
-                className="w-full bg-main_viridian hover:bg-main_bitter_switter transition-colors duration-200 text-white py-3 !rounded-none text-base font-semibold shadow-md"
+                className="w-full bg-main_viridian hover:!bg-main_olivine transition-colors duration-200 text-white py-3 !rounded-none text-base font-semibold shadow-md"
               >
                 Request Leave
               </Button>
@@ -283,11 +358,9 @@ const displayText =
             <h2 className="text-2xl font-bold text-main_dark mb-2 flex items-center gap-2">
               {/* <FaRegCalendarCheck className="text-main_orange" /> Leave Balance */}
             </h2>
-            <p className="text-lg text-gray-600">
-              You have{" "}
-              <span className="font-semibold text-main_viridian">10 days</span>{" "}
-              of annual leave remaining.
-            </p>
+            <h1 className="text-gray-600 text-xl">
+              Request and manage your leave requests efficiently.
+            </h1>
           </section>
           <Button
             type="primary"

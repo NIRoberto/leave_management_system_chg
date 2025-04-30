@@ -47,3 +47,5 @@ export interface LeaveRecord {
 }
 
 export type LeaveRecordsResponse = LeaveRecord[];
+
+export type LeaveRecordByUserResponse = LeaveRecord[];

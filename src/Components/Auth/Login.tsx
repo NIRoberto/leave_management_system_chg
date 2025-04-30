@@ -41,7 +41,7 @@ const Login = () => {
       },
       onError: (error: any) => {
         console.log(error?.response?.data?.message);
-        Notify.failure(error?.response?.data?.message || "Login failed");
+        Notify.failure(error?.response?.data?.message || "Incorrect email or password");
       },
     });
     // navigate("/dashboard/overview");

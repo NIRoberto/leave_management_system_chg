@@ -36,11 +36,9 @@ const DashboardOverview = () => {
       {
         title: "Pending Requests",
         count:
-          // LeaveRecordsByUserResponse?.filter(
-          //   (record) => record.leaveStatus?.name === "Pending"
-          // )?.length ||
-          
-          0,
+          LeaveRecordsByUserResponse?.filter(
+            (record) => record.leaveStatus?.name === "pending"
+          )?.length || 0,
 
         icon: <FileTextOutlined />,
         color: "#17337C",
@@ -218,7 +216,7 @@ const DashboardOverview = () => {
       </div>
 
       {/* Quick Links */}
-      <div className="bg-white p-6 rounded-xl shadow-md mb-10">
+      {/* <div className="bg-white p-6 rounded-xl shadow-md mb-10">
         <h2 className="text-2xl font-semibold text-main_dark mb-4">
           Quick Links
         </h2>
@@ -234,15 +232,14 @@ const DashboardOverview = () => {
             </li>
           ))}
         </ul>
-      </div>
+      </div> */}
 
       {/* Activity Trends with AntD Chart */}
-      <div className="bg-white p-6 rounded-xl shadow-md mb-10">
+      {/* <div className="bg-white p-6 rounded-xl shadow-md mb-10">
         <h2 className="text-2xl font-semibold text-main_dark mb-4">
           Activity Trends
         </h2>
-        {/* <Line {...config} /> */}
-      </div>
+      </div> */}
     </div>
   );
 };

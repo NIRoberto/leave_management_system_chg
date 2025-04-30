@@ -2,11 +2,9 @@ import React, { useState, useEffect } from "react";
 
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAppContext } from "../../../Provider/AppProvider";
-import { Cookie } from "lucide-react";
 import { StorageKeys } from "../../../Config/StorageKeys";
 import Cookies from "js-cookie";
 import { Notify } from "notiflix";
-import { Role } from "../../Types/usersTypes";
 import Sidebar from "./Dashboard/SidebarComp";
 import Header from "./Dashboard/HeaderComp";
 

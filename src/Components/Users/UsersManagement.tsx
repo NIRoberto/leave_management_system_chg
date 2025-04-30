@@ -24,7 +24,6 @@ import StatusDropdownFilter from "../Shared/UI/FilterTypes";
 import { Notify } from "notiflix";
 import {
   useCreateData,
-  useUpdateData,
   useUpdateWithTwoParameters,
 } from "../../Hooks/apiHooks";
 
@@ -60,6 +59,9 @@ const CreateUser = () => {
       {
         onSuccess: () => {
           Notify.success("User created successfully!");
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
         },
         onError: (error: any) => {
           Notify.failure(
@@ -101,7 +103,6 @@ const CreateUser = () => {
                   helperText="Please enter the user's last name."
                 />
               </div>
-
               <TextInput
                 name="email"
                 label="Email"
@@ -110,7 +111,6 @@ const CreateUser = () => {
                 icon={<MailOutlined className="mr-2" />}
                 helperText="Please enter the user's email."
               />
-
               <TextInput
                 name="phone"
                 label="Phone"
