@@ -7,6 +7,7 @@ import {
 import React, { useCallback, useEffect } from "react";
 import api from "../Config/axiosConfig";
 import { StorageKeys } from "../Config/StorageKeys";
+import { Notify } from "notiflix";
 
 interface PaginatedResponse<T> {
   data: T[];
@@ -155,7 +156,7 @@ export const useCreateWithAuthData = <T>(endpoint: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: T) => {
-      const response = await api.post(endpoint, data,{
+      const response = await api.post(endpoint, data, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem(
             StorageKeys.ACCESS_TOKEN
@@ -176,6 +177,46 @@ export const useUpdateData = <T>(endpoint: string) => {
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: T }) => {
       const response = await api.patch(`${endpoint}`, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries();
+    },
+  });
+};
+
+export const useUpdateWithTwoParameters = <T>(endpoint: string) => {
+  return useMutation({
+    mutationFn: async ({
+      userId,
+      roleId,
+      data,
+    }: {
+      userId: number;
+      roleId: number;
+      data?: T; //
+    }) => {
+      const response = await api.patch(
+        `${endpoint}/${userId}/assign-role/${roleId}`,
+        data || {}, //
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem(
+              StorageKeys.ACCESS_TOKEN
+            )}`,
+          },
+        }
+      );
+      return response.data;
+    },
+  });
+};
+
+export const useUpdateStatusData = <T>(endpoint: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ data }: { data: T }) => {
+      const response = await api.put(`${endpoint}`, data);
       return response.data;
     },
     onSuccess: () => {

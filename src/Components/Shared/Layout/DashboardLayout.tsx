@@ -38,16 +38,12 @@ const DashboardLayout: React.FC = () => {
   const [currentRole, setCurrentRole] = useState<string | undefined>(undefined);
   useEffect(() => {
     if (roles) {
-      const foundRole = roles.find(
-        (role: Role) => role.id === LoggedInUser?.roleId
-      );
+      const foundRole = LoggedInUser?.role;
       if (foundRole) {
         setCurrentRole(foundRole.name);
       }
     }
   }, [roles, LoggedInUser]);
-
-  console.log(LoggedInUser);
 
   return (
     <div className="flex min-h-screen bg-gray-100 text-gray-900 transition-all duration-300">
@@ -57,7 +53,6 @@ const DashboardLayout: React.FC = () => {
         collapsed={collapsed}
         onCollapseChange={setCollapsed}
       />
-      {/* Main Content */}
       <div
         className="flex-1 transition-all duration-300"
         style={{ marginLeft: sidebarWidth }}
@@ -86,7 +81,7 @@ const DashboardLayout: React.FC = () => {
           }
           avatarUrl="https://res.cloudinary.com/nrob/image/upload/v1721084009/tip%20top%20consultancy/xorguxv2x1bwferxtkfo.webp"
         />
-        <main className="p-6 sm:p-8">
+        <main className="p-6 sm:p-8 max-h-[93vh] overflow-auto">
           <Outlet />
         </main>
       </div>

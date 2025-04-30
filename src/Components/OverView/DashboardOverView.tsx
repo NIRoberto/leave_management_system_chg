@@ -7,61 +7,136 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import { Tooltip } from "antd";
-
-// Dashboard data
-const stats = [
-  {
-    title: "Total Users",
-    count: 120,
-    icon: <UserOutlined />,
-    color: "#e03616",
-  },
-  {
-    title: "Leave Requests",
-    count: 45,
-    icon: <FileTextOutlined />,
-    color: "#17337C",
-  },
-  {
-    title: "Pending Approvals",
-    count: 8,
-    icon: <ClockCircleOutlined />,
-    color: "#FFAA2C",
-  },
-  {
-    title: "New Notifications",
-    count: 12,
-    icon: <BellOutlined />,
-    color: "#13B156",
-  },
-];
-
-const recentActivities = [
-  { title: "John Doe applied for leave", time: "2 hours ago" },
-  { title: "Jane Smith's leave request approved", time: "1 day ago" },
-  { title: "Mike Johnson updated profile", time: "3 days ago" },
-  { title: "Leave policy updated", time: "5 days ago" },
-];
-
-const quickLinks = [
-  { title: "Manage Leave", link: "/leave" },
-  { title: "User Management", link: "/manage-users" },
-  { title: "Reports", link: "/reports" },
-  { title: "Settings", link: "/settings" },
-];
-
-// Mock data for chart
-const chartData = [
-  { date: "2024-07-01", value: 5 },
-  { date: "2024-07-02", value: 10 },
-  { date: "2024-07-03", value: 8 },
-  { date: "2024-07-04", value: 15 },
-  { date: "2024-07-05", value: 12 },
-  { date: "2024-07-06", value: 18 },
-  { date: "2024-07-07", value: 14 },
-];
+import { useAppContext } from "../../Provider/AppProvider";
 
 const DashboardOverview = () => {
+  const {
+    LoggedInUser,
+    users,
+    leaveRecords,
+    notificationsData,
+    LeaveRecordsByUserResponse,
+  } = useAppContext();
+
+  // Role-based data
+
+  console.log("LoggedInUser", LoggedInUser);
+
+  const role: keyof typeof stats =
+    (LoggedInUser?.role?.name?.toLowerCase() as keyof typeof stats) || "staff";
+
+  const stats = {
+    staff: [
+      {
+        title: "Leave Balance",
+        count: 12,
+        icon: <ClockCircleOutlined />,
+        color: "#FFAA2C",
+      },
+      {
+        title: "Pending Requests",
+        count:
+          // LeaveRecordsByUserResponse?.filter(
+          //   (record) => record.leaveStatus?.name === "Pending"
+          // )?.length ||
+          
+          0,
+
+        icon: <FileTextOutlined />,
+        color: "#17337C",
+      },
+    ],
+    manager: [
+      {
+        title: "Team Leave Requests",
+        count: leaveRecords?.length || 0,
+        icon: <FileTextOutlined />,
+        color: "#17337C",
+      },
+      {
+        title: "Pending Approvals",
+        count:
+          leaveRecords?.filter(
+            (record) => record.leaveStatus?.name === "Pending"
+          )?.length || 0,
+        icon: <ClockCircleOutlined />,
+        color: "#FFAA2C",
+      },
+    ],
+    admin: [
+      {
+        title: "Total Users",
+        count: users?.length || 0,
+        icon: <UserOutlined />,
+        color: "#e03616",
+      },
+      {
+        title: "Leave Requests",
+        count: leaveRecords?.length || 0,
+        icon: <FileTextOutlined />,
+        color: "#17337C",
+      },
+      {
+        title: "Pending Approvals",
+        count:
+          leaveRecords?.filter(
+            (record) => record.leaveStatus?.name === "Pending"
+          )?.length || 0,
+        icon: <ClockCircleOutlined />,
+        color: "#FFAA2C",
+      },
+      {
+        title: "New Notifications",
+        count:
+          notificationsData?.filter((notification) => !notification.isRead)
+            ?.length || 0,
+        icon: <BellOutlined />,
+        color: "#13B156",
+      },
+    ],
+  };
+
+  const recentActivities = {
+    staff: [
+      { title: "You applied for leave", time: "2 hours ago" },
+      { title: "Your leave request was approved", time: "1 day ago" },
+    ],
+    manager: [
+      { title: "John Doe applied for leave", time: "2 hours ago" },
+      { title: "Jane Smith's leave request approved", time: "1 day ago" },
+    ],
+    admin: [
+      { title: "Mike Johnson updated profile", time: "3 days ago" },
+      { title: "Leave policy updated", time: "5 days ago" },
+    ],
+  };
+
+  const quickLinks = {
+    staff: [
+      { title: "Apply for Leave", link: "/leave/apply" },
+      { title: "Leave History", link: "/leave/history" },
+    ],
+    manager: [
+      { title: "Approve Leave Requests", link: "/leave/approvals" },
+      { title: "Team Calendar", link: "/calendar" },
+    ],
+    admin: [
+      { title: "Manage Users", link: "/manage-users" },
+      { title: "Reports", link: "/reports" },
+      { title: "Settings", link: "/settings" },
+    ],
+  };
+
+  const chartData = [
+    { date: "2024-07-01", value: 5 },
+    { date: "2024-07-02", value: 10 },
+    { date: "2024-07-03", value: 8 },
+    { date: "2024-07-04", value: 15 },
+    { date: "2024-07-05", value: 12 },
+    { date: "2024-07-06", value: 18 },
+    { date: "2024-07-07", value: 14 },
+  ];
+
   const config = {
     data: chartData,
     padding: "auto",
@@ -87,7 +162,7 @@ const DashboardOverview = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-white rounded-md">
       {/* Page Title */}
       <h1 className="text-3xl font-bold text-main_dark mb-8">
         Dashboard Overview
@@ -95,7 +170,7 @@ const DashboardOverview = () => {
 
       {/* Stats Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        {stats.map((stat, index) => (
+        {stats[role]?.map((stat, index) => (
           <div
             key={index}
             className="bg-white p-5 rounded-xl shadow-md border-l-4"
@@ -130,7 +205,7 @@ const DashboardOverview = () => {
           Recent Activities
         </h2>
         <ul className="space-y-3">
-          {recentActivities.map((activity, index) => (
+          {recentActivities[role]?.map((activity, index) => (
             <li
               key={index}
               className="text-sm text-gray-700 hover:bg-gray-100 p-2 rounded-md transition-all"
@@ -148,7 +223,7 @@ const DashboardOverview = () => {
           Quick Links
         </h2>
         <ul className="space-y-3">
-          {quickLinks.map((link, index) => (
+          {quickLinks[role]?.map((link, index) => (
             <li key={index}>
               <a
                 href={link.link}

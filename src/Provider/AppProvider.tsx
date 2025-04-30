@@ -8,7 +8,7 @@ import React, {
   useState,
   useCallback,
 } from "react";
-import { useFetchData } from "../Hooks/apiHooks";
+import { useFetchData, useFetchDataById } from "../Hooks/apiHooks";
 import {
   AllUsersResponse,
   LoggedInUser,
@@ -16,11 +16,16 @@ import {
   User,
 } from "../Components/Types/usersTypes";
 import {
+  LeaveRecord,
   LeaveRecordsResponse,
   LeaveStatusResponse,
   LeaveTypeListResponse,
 } from "../Components/Types/leave";
-import { NotificationTypeResponse } from "../Components/Types/notification";
+import {
+  NotificationDataResponse,
+  NotificationResponse,
+  NotificationTypeResponse,
+} from "../Components/Types/notification";
 
 interface UserContextType {
   LoggedInUser: LoggedInUser | undefined;
@@ -46,6 +51,11 @@ interface UserContextType {
   leaveRecords: LeaveRecordsResponse;
   isLeaveRecordsLoading: boolean;
   isLeaveRecordsError: boolean;
+  notificationsData: NotificationDataResponse;
+  isLoadingNotifications: boolean;
+  isNotificationsError: boolean;
+  LeaveRecordsByUserResponse: LeaveRecord[];
+  LeaveRecordsByUserLoading: boolean;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -104,6 +114,23 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     isError: isLeaveRecordsError,
     error: leaveRecordsError,
   } = useFetchData<LeaveRecordsResponse>("leaveRequests", "leave/request");
+
+  const {
+    data: notificationsData,
+    isLoading: isLoadingNotifications,
+    isError: isNotificationsError,
+  } = useFetchData<NotificationDataResponse>(
+    "notificationsDataPerUser",
+    `notifications?user_id=${LoggedInUser?.id}`
+  );
+
+  const { data: LeaveRecordsByUserResponse = [], isLoading: LeaveRecordsByUserLoading } =
+    useFetchDataById<LeaveRecord[]>(
+      "leaveRequestsUsers",
+      "leave/request/user",
+      LoggedInUser?.id ?? 0 //
+    );
+
   return (
     <UserContext.Provider
       value={
@@ -130,7 +157,13 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           isLeaveStatusesError,
           leaveRecords,
           isLeaveRecordsLoading,
-        } as UserContextType
+          isLeaveRecordsError,
+          notificationsData,
+          isLoadingNotifications,
+          isNotificationsError,
+          LeaveRecordsByUserResponse,
+          LeaveRecordsByUserLoading,
+        } as unknown as UserContextType
       }
     >
       {children}

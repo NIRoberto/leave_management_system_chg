@@ -2,9 +2,12 @@ interface User {
   id: number;
   first_name: string;
   last_name: string;
+  role: Role;
   email: string;
   phone: string;
   roleId: number | null;
+  profile_picture_url: string | null;
+  gender: string | null;
   password: string;
   created_at: string; // ISO date string
   updated_at: string; // ISO date string
@@ -19,6 +22,7 @@ interface LoggedInUser {
   email: string;
   phone: string;
   roleId: number | null;
+  role: Role;
   password: string;
   created_at: string; // ISO date string
   updated_at: string; // ISO date string

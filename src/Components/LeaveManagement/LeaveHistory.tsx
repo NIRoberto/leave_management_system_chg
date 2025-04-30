@@ -1,133 +1,212 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+import {
+  Table,
+  Tag,
+  Input,
+  DatePicker,
+  Select,
+  Spin,
+  Empty,
+  Button,
+} from "antd";
+import type { ColumnsType } from "antd/es/table";
+import dayjs from "dayjs";
+import isBetween from "dayjs/plugin/isBetween";
+import { useAppContext } from "../../Provider/AppProvider";
 
-// Sample leave data
-const sampleLeaveData = [
-  {
-    id: 1,
-    leaveType: "Sick Leave",
-    startDate: "2025-04-01",
-    endDate: "2025-04-05",
-    status: "Approved",
-    reason: "Flu",
-  },
-  {
-    id: 2,
-    leaveType: "Annual Leave",
-    startDate: "2025-03-15",
-    endDate: "2025-03-20",
-    status: "Pending",
-    reason: "Vacation",
-  },
-  {
-    id: 3,
-    leaveType: "Casual Leave",
-    startDate: "2025-02-10",
-    endDate: "2025-02-12",
-    status: "Denied",
-    reason: "Personal Matter",
-  },
-];
+dayjs.extend(isBetween);
 
-// Utility function to format dates
-const formatDate = (dateStr: string) =>
-  new Date(dateStr).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-
-// Utility function for badge style
-const getBadgeClass = (status: string) => {
-  switch (status) {
-    case "Approved":
-      return "bg-green-100 text-green-700";
-    case "Pending":
-      return "bg-yellow-100 text-yellow-700";
-    case "Denied":
-      return "bg-red-100 text-red-700";
-    default:
-      return "bg-gray-100 text-gray-700";
-  }
-};
+const { RangePicker } = DatePicker;
+const { Option } = Select;
 
 const LeaveHistory = () => {
-  const [filterStatus, setFilterStatus] = useState("All");
+  const { leaveRecords, LoggedInUser, isLeaveRecordsLoading } = useAppContext();
 
-  const filteredRecords =
-    filterStatus === "All"
-      ? sampleLeaveData
-      : sampleLeaveData.filter((record) => record.status === filterStatus);
+  // State for filters
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [dateRange, setDateRange] = useState<[string, string] | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+
+  // Filtered leave records based on role and filters
+  const filteredLeaveRecords = useMemo(() => {
+    let records = leaveRecords || [];
+
+    // Filter by role
+    if (LoggedInUser?.role?.name?.toLowerCase() === "staff") {
+      records = records.filter(
+        (record: any) => record.user?.id === LoggedInUser.id
+      );
+    }
+
+    // Filter by search term
+    if (searchTerm) {
+      records = records.filter((record: any) =>
+        record.leaveType?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by date range
+    if (dateRange) {
+      const [start, end] = dateRange;
+      records = records.filter((record: any) => {
+        const recordStart = dayjs(record.start_date);
+        const recordEnd = dayjs(record.end_date);
+        return (
+          recordStart.isBetween(start, end, null, "[]") ||
+          recordEnd.isBetween(start, end, null, "[]") ||
+          (recordStart.isBefore(start) && recordEnd.isAfter(end))
+        );
+      });
+    }
+
+    // Filter by status
+    if (statusFilter) {
+      records = records.filter((record: any) =>
+        statusFilter !== ""
+          ? record.leaveStatus?.name?.toLowerCase() ===
+            statusFilter.toLowerCase()
+          : true
+      );
+    }
+
+    return records;
+  }, [leaveRecords, LoggedInUser, searchTerm, dateRange, statusFilter]);
+
+  // Table columns
+  const columns: ColumnsType<any> = [
+    {
+      title: "Leave Type",
+      dataIndex: "leaveType",
+      key: "leaveType",
+      render: (leaveType: any) => leaveType?.name || "N/A",
+    },
+    {
+      title: "Start Date",
+      dataIndex: "start_date",
+      key: "start_date",
+      render: (date: string) => dayjs(date).format("MMMM DD, YYYY"),
+    },
+    {
+      title: "End Date",
+      dataIndex: "end_date",
+      key: "end_date",
+      render: (date: string) => dayjs(date).format("MMMM DD, YYYY"),
+    },
+    {
+      title: "Duration",
+      dataIndex: "duration",
+      key: "duration",
+      render: (duration: number) => `${duration} day(s)`,
+    },
+    {
+      title: "Status",
+      dataIndex: "leaveStatus",
+      key: "status",
+      render: (_: any, record: any) => {
+        const status = record?.leaveStatus?.name?.toLowerCase() || "unknown";
+
+        const statusColorMap: Record<string, string> = {
+          approved: "green",
+          cancelled: "default",
+          pending: "orange",
+          rejected: "red",
+        };
+        const displayText =
+          status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+
+        return (
+          <Tag color={statusColorMap[status] || "default"}>{displayText}</Tag>
+        );
+      },
+    },
+    {
+      title: "Reviewer",
+      dataIndex: "reviewer_by",
+      key: "reviewer_by",
+      render: (reviewer: any) =>
+        reviewer
+          ? `${reviewer.first_name} ${reviewer.last_name}`
+          : "Not Assigned",
+    },
+  ];
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-md max-w-6xl mx-auto">
-      <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
-        <h2 className="text-2xl font-bold text-main_dark">Leave History</h2>
+    <div className="bg-white rounded-2xl shadow-lg p-6">
+      <header className="mb-6 flex justify-between">
+        <h2 className="text-3xl font-bold text-main_dark mb-2">
+          Leave History
+        </h2>
+        <p className="text-gray-600 text-sm">
+          View and track your leave history and statuses.
+        </p>
+      </header>
 
-        <div className="flex items-center gap-3">
-          <label htmlFor="status" className="text-sm text-gray-600">
-            Filter by status:
-          </label>
-          <select
-            id="status"
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-main_dark focus:outline-none"
-          >
-            <option value="All">All</option>
-            <option value="Approved">Approved</option>
-            <option value="Pending">Pending</option>
-            <option value="Denied">Denied</option>
-          </select>
+      {/* Filters */}
+      <div className="flex gap-4 mb-6">
+        <RangePicker
+          className="w-full sm:w-1/3"
+          size="large"
+          onChange={(dates) =>
+            setDateRange(
+              dates && dates[0] && dates[1]
+                ? [dates[0].format("YYYY-MM-DD"), dates[1].format("YYYY-MM-DD")]
+                : null
+            )
+          }
+        />
+        <Select
+          placeholder="Filter by status"
+          className="w-full sm:w-1/3"
+          allowClear
+          size="large"
+          value={statusFilter}
+          onChange={(value) => setStatusFilter(value || null)}
+        >
+          <Option value="">All</Option>
+          <Option value="approved">Approved</Option>
+          <Option value="pending">Pending</Option>
+          <Option value="rejected">Rejected</Option>
+        </Select>
+        <Input.Search
+          placeholder="Search by leave type"
+          className="w-full sm:w-1/3"
+          size="large"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+
+        <Button
+          type="primary"
+          onClick={() => {
+            setDateRange(null);
+            setStatusFilter(null);
+            setSearchTerm("");
+          }}
+          className=" bg-main_viridian hover:bg-main_bitter_switter transition-colors duration-200 text-white py-3 !rounded-none text-base font-semibold shadow-md"
+          size="large"
+        >
+          Clear Filters
+        </Button>
+      </div>
+
+      {/* Leave Records Table */}
+      {isLeaveRecordsLoading ? (
+        <div className="flex justify-center items-center h-40">
+          <Spin size="large" />
         </div>
-      </div>
-
-      <div className="overflow-x-auto rounded-lg border border-gray-200">
-        <table className="min-w-full text-sm">
-          <thead className="bg-gray-50 text-left text-gray-700">
-            <tr>
-              <th className="px-4 py-3 font-medium">Leave Type</th>
-              <th className="px-4 py-3 font-medium">Start Date</th>
-              <th className="px-4 py-3 font-medium">End Date</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Reason</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredRecords.length > 0 ? (
-              filteredRecords.map((leave) => (
-                <tr
-                  key={leave.id}
-                  className="border-t hover:bg-gray-50 transition-colors"
-                >
-                  <td className="px-4 py-3 text-gray-800">{leave.leaveType}</td>
-                  <td className="px-4 py-3 text-gray-700">
-                    {formatDate(leave.startDate)}
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">
-                    {formatDate(leave.endDate)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${getBadgeClass(
-                        leave.status
-                      )}`}
-                    >
-                      {leave.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">{leave.reason}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-gray-500">
-                  No leave records match the selected status.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      ) : filteredLeaveRecords.length > 0 ? (
+        <Table
+          columns={columns}
+          dataSource={filteredLeaveRecords}
+          rowKey={(record) => record.id}
+          pagination={{ pageSize: 10 }}
+          className="rounded-lg overflow-hidden"
+        />
+      ) : (
+        <div className="flex justify-center items-center h-40">
+          <Empty description="No leave records found" />
+        </div>
+      )}
     </div>
   );
 };

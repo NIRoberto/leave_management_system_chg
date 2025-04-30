@@ -1,110 +1,98 @@
 import React from "react";
-import { List, Avatar, Tag, Typography } from "antd";
-import {
-  BellOutlined,
-  CheckCircleOutlined,
-  ExclamationCircleOutlined,
-  ClockCircleOutlined,
-} from "@ant-design/icons";
+import { List, Avatar, Tag, Typography, Spin, Empty, Alert } from "antd";
+import { useAppContext } from "../../Provider/AppProvider";
+import dayjs from "dayjs";
+import { NotificationResponse } from "../Types/notification";
 
 const { Title, Text } = Typography;
 
-const mockNotifications = [
-  {
-    id: 1,
-    title: "Leave Approved",
-    description: "Your leave request from April 10 to April 12 was approved.",
-    date: "2025-04-17",
-    type: "success",
-  },
-  {
-    id: 2,
-    title: "Pending Leave Request",
-    description: "John requested leave from April 22 to April 25.",
-    date: "2025-04-16",
-    type: "warning",
-  },
-  {
-    id: 3,
-    title: "Leave Rejected",
-    description: "Your emergency leave request on April 15 was rejected.",
-    date: "2025-04-15",
-    type: "error",
-  },
-  {
-    id: 4,
-    title: "Reminder",
-    description: "Please submit your leave plan for May by April 20.",
-    date: "2025-04-14",
-    type: "info",
-  },
-];
-
-const getIconByType = (type: string) => {
-  switch (type) {
-    case "success":
-      return <CheckCircleOutlined className="text-green-500" />;
-    case "warning":
-      return <ExclamationCircleOutlined className="text-yellow-500" />;
-    case "error":
-      return <ExclamationCircleOutlined className="text-red-500" />;
-    case "info":
-    default:
-      return <ClockCircleOutlined className="text-blue-500" />;
-  }
-};
-
-const getTagColor = (type: string) => {
-  switch (type) {
-    case "success":
-      return "green";
-    case "warning":
-      return "orange";
-    case "error":
-      return "red";
-    case "info":
-    default:
-      return "blue";
-  }
-};
-
 const NotificationsComp = () => {
-  return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
-      <Title level={3} className="text-main_dark mb-4">
-        Notifications
-      </Title>
+  const { notificationsData, isLoadingNotifications, isNotificationsError } =
+    useAppContext();
 
-      <List
-        itemLayout="horizontal"
-        dataSource={mockNotifications}
-        renderItem={(item) => (
-          <List.Item className="hover:bg-gray-50 transition-all rounded-md px-2">
-            <List.Item.Meta
-              avatar={
-                <Avatar
-                  icon={getIconByType(item.type)}
-                  style={{ backgroundColor: "white", border: "1px solid #ccc" }}
-                />
-              }
-              title={
-                <div className="flex items-center justify-between">
-                  <Text strong>{item.title}</Text>
-                  <Tag color={getTagColor(item.type)}>
-                    {item.type.toUpperCase()}
-                  </Tag>
-                </div>
-              }
-              description={
-                <div>
-                  <Text>{item.description}</Text>
-                  <div className="text-xs text-gray-500 mt-1">{item.date}</div>
-                </div>
-              }
-            />
-          </List.Item>
-        )}
+  const renderAvatar = (user: NotificationResponse["user"]) => {
+    return user.profile_picture_url ? (
+      <Avatar src={user.profile_picture_url} />
+    ) : (
+      <Avatar>
+        {user.first_name[0]}
+        {user.last_name[0]}
+      </Avatar>
+    );
+  };
+
+  const renderIcon = (icon: string) => {
+    return (
+      <Avatar
+        className="bg-white border border-gray-300"
+        icon={<i className={`ri-${icon} text-lg`} />} // Use Remix Icon or your preferred icon set
+        size="large"
       />
+    );
+  };
+
+  return (
+    <div className="p-6 bg-white rounded-2xl shadow-md">
+      <div className="flex items-center justify-between mb-4">
+        <Title level={4} className="!mb-0 text-main_dark">
+          Notifications
+        </Title>
+        <Tag color="green" className="uppercase">
+          {notificationsData?.length} Total
+        </Tag>
+      </div>
+
+      {isLoadingNotifications ? (
+        <div className="flex justify-center py-10">
+          <Spin size="large" />
+        </div>
+      ) : isNotificationsError ? (
+        <Alert type="error" message="Failed to load notifications" showIcon />
+      ) : notificationsData?.length === 0 ? (
+        <Empty description="No notifications" />
+      ) : (
+        <List
+          itemLayout="horizontal"
+          dataSource={notificationsData}
+          className="divide-y divide-gray-100"
+          renderItem={(item) => (
+            <List.Item
+              className={`hover:bg-gray-50 px-2 py-3 rounded-md transition-all ${
+                !item.isRead ? "bg-blue-50" : ""
+              }`}
+            >
+              <List.Item.Meta
+                avatar={renderIcon(item.notificationType.icon)}
+                title={
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Text strong className="text-gray-800">
+                        {item.notificationType.label}
+                      </Text>
+                      {!item.isRead && (
+                        <Tag color="processing" className="text-xs">
+                          New
+                        </Tag>
+                      )}
+                    </div>
+                    <Tag color={item.notificationType.color}>
+                      {item.notificationType.name}
+                    </Tag>
+                  </div>
+                }
+                description={
+                  <div>
+                    <Text className="text-gray-700">{item.message}</Text>
+                    <div className="text-xs text-gray-400 mt-1">
+                      {dayjs(item.createdAt).format("MMM D, YYYY h:mm A")}
+                    </div>
+                  </div>
+                }
+              />
+            </List.Item>
+          )}
+        />
+      )}
     </div>
   );
 };
